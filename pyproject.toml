@@ -1,0 +1,29 @@
+[project]
+name = "callcenter-intelligence"
+version = "0.1.0"
+description = "Multi-agent pipeline that transcribes, secures, summarizes and QA-scores call center audio"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "langgraph>=0.4",
+    "langchain-core>=0.3",
+    "langchain-openai>=0.2",
+    "langchain-google-genai>=2.0",
+    "langchain-groq>=0.2",
+    "faster-whisper>=1.0",
+    "mutagen>=1.47",
+    "pydantic>=2.7",
+    "sqlalchemy>=2.0",
+    "gradio>=5.0,<6",
+    "reportlab>=4.1,<6",
+    "python-dotenv>=1.0",
+    "soundfile>=0.12",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.5", "pre-commit>=3.7"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
