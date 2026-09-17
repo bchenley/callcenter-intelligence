@@ -25,6 +25,7 @@ __pycache__/
 data/*.db
 data/audio/*
 !data/audio/.gitkeep
+data/samples/
 
 # Model weights if a download ever lands in-tree.
 .cache/

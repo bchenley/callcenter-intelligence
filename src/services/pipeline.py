@@ -143,9 +143,15 @@ def process_call(
     elapsed = round(time.monotonic() - started, 2)
     status = state.get("status", CallStatus.FAILED.value)
     report = state.get("report")
+    transcription = state.get("transcription")
     if report is None:
+        # Injection (and any other pre-report halt) still transcribed. Keep the
+        # words on screen so the block reason is inspectable; do not build a PDF.
         return PipelineResult(
             status=status,
+            transcript=format_transcript(transcription, confidence_threshold)
+            if transcription
+            else "",
             error=state.get("error") or "Processing failed.",
             call_id=state["intake"].call_id if state.get("intake") else None,
             elapsed_seconds=elapsed,

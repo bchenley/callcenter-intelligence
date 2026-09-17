@@ -236,6 +236,38 @@ def test_empty_segments_handled() -> None:
     assert tx.SpeakerDiarizer().assign([]) == []
 
 
+def test_sorry_about_that_is_agent_after_short_gap() -> None:
+    """0.6s is below SPEAKER_GAP_SECONDS, so labelling this Agent is a content hit.
+    Live Whisper labelled it Customer because 'I'm sorry about that' was missing."""
+    segs = [
+        _seg(0, 2, "Thank you for calling Northwind, how can I help?"),
+        _seg(3.6, 8, "Hi, yes. My account was charged twice this month."),
+        _seg(8.6, 12, "I'm sorry about that, a duplicate charge is frustrating."),
+    ]
+    assert [s.speaker for s in tx.SpeakerDiarizer().assign(segs)] == ["Agent", "Customer", "Agent"]
+
+
+def test_mid_sentence_split_keeps_agent() -> None:
+    """Whisper split one agent sentence; the second fragment does not end in '?'."""
+    segs = [
+        _seg(0, 2, "Thank you for calling, how can I help?"),
+        _seg(3.6, 7, "My account was charged twice."),
+        _seg(7.6, 10, "I'm sorry about that. Before I pull anything up, I need to verify your"),
+        _seg(10.1, 13, "identity. Can I have the last four digits of the card on file?"),
+    ]
+    out = tx.SpeakerDiarizer().assign(segs)
+    assert [s.speaker for s in out] == ["Agent", "Customer", "Agent", "Agent"]
+
+
+def test_reversing_duplicate_is_agent_after_short_gap() -> None:
+    segs = [
+        _seg(0, 2, "Thank you for calling, how can I help?"),
+        _seg(3.6, 6, "My account was charged twice."),
+        _seg(6.6, 11, "You're correct, the second one is a system duplicate. I'm reversing it now."),
+    ]
+    assert [s.speaker for s in tx.SpeakerDiarizer().assign(segs)] == ["Agent", "Customer", "Agent"]
+
+
 def test_alternating_conversation_labels_both_speakers() -> None:
     segs = [
         _seg(0, 2, "Thank you for calling Acme, how can I help?"),

@@ -12,6 +12,7 @@ CARD_VARIANTS = [
     "4111-1111-1111-1111",
     "4111 1111 1111 1111",
     "4111111111111111",
+    "4111, 1111, 1111, 1111",
     "5500-0000-0000-0004",
     "378282246310005",
 ]
@@ -21,6 +22,7 @@ EMAIL_VARIANTS = [
     "j+tag@x.io",
     "JANE@CO.COM",
     "a_b-c@mail.co.uk",
+    "jane.do at example.com",
 ]
 PHONE_VARIANTS = [
     "555-123-4567",
@@ -122,6 +124,13 @@ def test_empty_string() -> None:
     result = redact_pii("")
     assert result.pii_found is False
     assert result.redacted_text == ""
+
+
+def test_plain_at_without_a_domain_is_not_email() -> None:
+    original = "I will look at that later."
+    result = redact_pii(original)
+    assert result.pii_found is False
+    assert result.redacted_text == original
 
 
 def test_non_string_raises() -> None:

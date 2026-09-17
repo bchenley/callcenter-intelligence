@@ -185,6 +185,9 @@ def test_critical_flag_routes_to_supervisor_review(config, engine, monkeypatch) 
     result = compiled.invoke({"audio_input": _audio()})
     assert result["status"] == CallStatus.FLAGGED_FOR_REVIEW.value
     assert result["report"] is not None, "a supervisor still needs the evidence"
+    actions = [e.action for e in AuditLogger(engine).entries_for_call(result["report"].call_id)]
+    assert "flagged_for_review" in actions
+    assert "completed" not in actions
 
 
 @pytest.mark.parametrize("severity", [Severity.LOW, Severity.MEDIUM, Severity.HIGH])

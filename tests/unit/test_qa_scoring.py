@@ -132,6 +132,7 @@ def test_system_prompt_carries_the_grounding_rules() -> None:
     assert "MM:SS" in system
     assert "Short calls are efficient" in system
     assert "never style" in system or "Never flag style" in system
+    assert "next-time action" in system
 
 
 def test_raises_after_three_attempts() -> None:

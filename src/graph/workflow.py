@@ -217,7 +217,10 @@ def make_report_node(
             status=status,
         )
         persist_report(report, engine)
-        _audit(audit, report.call_id, "completed", status=status.value)
+        # Supervisor review is not a successful close. Logging "completed" made the
+        # audit trail contradict CallRecord.status and the PDF header.
+        action = "completed" if status is CallStatus.COMPLETED else status.value
+        _audit(audit, report.call_id, action, status=status.value)
         return {"report": report, "status": status.value}
 
     return report_node

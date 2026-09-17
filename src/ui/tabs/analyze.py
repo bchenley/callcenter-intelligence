@@ -8,6 +8,7 @@ from typing import Any
 
 import gradio as gr
 
+from src.graph.state import CallStatus
 from src.services.pipeline import PipelineResult, process_call
 
 PROCESSING_NOTICE = (
@@ -15,6 +16,30 @@ PROCESSING_NOTICE = (
     "Transcription and analysis typically take 30-90 seconds for a five-minute call. "
     "Do not refresh the page; the run is lost if you do."
 )
+
+
+def _present(result: PipelineResult) -> tuple[str, str, str, Any, Any]:
+    """Map a pipeline result onto the five Gradio outputs.
+
+    Rejected uploads (no transcript) stay a single error sentence - the rubric
+    checks .ogg that way. Everything else, including an injection halt, shows
+    Status so escalation is visible without opening the PDF.
+    """
+    if not result.ok and not result.transcript:
+        message = f"### Could not analyze this call\n\n{result.error}"
+        return "", message, "", None, None
+    summary = f"### Status: {result.status}"
+    if result.error and result.status != CallStatus.COMPLETED.value:
+        summary = f"{summary}\n\n{result.error}"
+    if result.summary_markdown:
+        summary = f"{summary}\n\n{result.summary_markdown}"
+    return (
+        result.transcript,
+        summary,
+        result.qa_markdown,
+        result.pdf_path,
+        result.json_path,
+    )
 
 
 def _run(
@@ -28,18 +53,7 @@ def _run(
             department=department,
             confidence_threshold=confidence_threshold,
         )
-        if not result.ok and not result.transcript:
-            # A rejected upload gets a sentence, never a traceback - the rubric
-            # checks this with an .ogg file.
-            message = f"### Could not analyze this call\n\n{result.error}"
-            return "", message, "", None, None
-        return (
-            result.transcript,
-            result.summary_markdown,
-            result.qa_markdown,
-            result.pdf_path,
-            result.json_path,
-        )
+        return _present(result)
 
     return handler
 

@@ -32,8 +32,12 @@ LONG_SEGMENT_WORDS = 8
 
 _AGENT_PATTERNS = re.compile(
     r"\b(?:thank you for calling|how (?:can|may) i (?:help|assist)|my name is \w+ and i"
-    r"|let me (?:check|look|pull up|transfer)|one moment|for (?:security|verification) purposes"
-    r"|is there anything else|i apologize for|i can (?:help|assist) you with|may i (?:have|ask))\b",
+    r"|let me (?:check|look|pull up|transfer)|one moment|one second"
+    r"|for (?:security|verification) purposes"
+    r"|is there anything else|i apologize for|i'?m sorry(?: about|,? i didn'?t catch)"
+    r"|i can (?:help|assist) you with|(?:may|can) i (?:have|ask)"
+    r"|before i (?:pull|look|verify|check)|that verifies"
+    r"|i(?:'?m| am) reversing|happy to help|i can see)\b",
     re.IGNORECASE,
 )
 _CUSTOMER_PATTERNS = re.compile(

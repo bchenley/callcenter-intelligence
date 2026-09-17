@@ -135,6 +135,22 @@ def test_failed_run_carries_the_reason(tmp_path) -> None:
     assert result.pdf_path is None
 
 
+def test_halt_without_report_still_returns_the_transcript(tmp_path) -> None:
+    wav = tmp_path / "a.wav"
+    wav.write_bytes(b"RIFF0000WAVE" + b"\x00" * 100)
+    wf = MagicMock()
+    wf.invoke.return_value = {
+        "status": CallStatus.FLAGGED_FOR_REVIEW.value,
+        "error": "Prompt injection detected in transcript; blocked before any LLM call.",
+        "transcription": _transcription(),
+        "intake": MagicMock(call_id="c1"),
+    }
+    result = svc.process_call(str(wav), wf)
+    assert result.pdf_path is None
+    assert "Thank you for calling" in result.transcript
+    assert "injection" in result.error.lower()
+
+
 def test_ok_property_tracks_status() -> None:
     assert svc.PipelineResult(status=CallStatus.COMPLETED.value).ok is True
     assert svc.PipelineResult(status=CallStatus.FLAGGED_FOR_REVIEW.value).ok is False

@@ -62,6 +62,9 @@ Cite a specific MM:SS timestamp from the transcript in every justification, and 
 or paraphrase what happened there. Write like a coach talking to the agent: concrete,
 specific, actionable. "Good tone" is not a justification. "At 02:15 you acknowledged
 the double charge before explaining the refund timeline" is.
+If a dimension scores below 5, end that justification with one next-time action the
+agent can take. A 5 is a citation only; do not invent a fix for work that was already
+excellent.
 
 COMPLIANCE FLAGS
 Flag only genuine procedural violations: missing identity verification before account

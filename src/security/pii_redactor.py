@@ -11,10 +11,16 @@ from dataclasses import dataclass
 PII_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"\b\d{3}[-. ]\d{2}[-. ]\d{4}\b|\b\d{9}\b(?![-.\d])"), "SSN"),
     (
-        re.compile(r"\b(?:\d{4}[-. ]?){3}\d{4}\b|\b3[47]\d{2}[-. ]?\d{6}[-. ]?\d{5}\b"),
+        # Whisper often inserts commas between spoken digit groups
+        # ("4111, 1111, 1111, 1111"). Same 4x4 shape as the written card.
+        re.compile(
+            r"\b\d{4}(?:[-.,\s]*\d{4}){3}\b|\b3[47]\d{2}[-. ]?\d{6}[-. ]?\d{5}\b"
+        ),
         "CREDIT_CARD",
     ),
     (re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"), "EMAIL"),
+    # Spoken "jane.do at example.com" - Whisper drops @ and says "at".
+    (re.compile(r"\b[A-Za-z0-9._%+-]+\s+at\s+[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"), "EMAIL"),
     (re.compile(r"(?:\+?1[-. ]?)?\(?\b\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}\b"), "PHONE"),
 ]
 
