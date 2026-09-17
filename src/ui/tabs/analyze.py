@@ -63,7 +63,7 @@ def build_analyze_tab(workflow: Any, confidence_threshold: float = 0.6) -> None:
         )
         with gr.Row():
             summary = gr.Markdown(label="Summary")
-            qa = gr.Markdown(label="QA scorecard")
+            qa = gr.Markdown(label="QA scorecard", elem_id="qa-card")
         with gr.Row():
             pdf = gr.File(label="Download PDF report")
             js = gr.File(label="Download JSON report")
