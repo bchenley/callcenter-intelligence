@@ -1,3 +1,6 @@
+# callcenter-intelligence
+# scripts/check_stack.py
+
 """Smoke-test the installed stack against the APIs the capstone spec assumes.
 
 The spec was written for LangGraph 0.4.x, Gradio 5.x and ReportLab 4.1.x. pip may resolve
@@ -6,7 +9,7 @@ change shows up now instead of mid-build.
 
 NOTE: no `from __future__ import annotations` in this file, and the TypedDict / ORM classes
 live at MODULE level on purpose. Both LangGraph and SQLAlchemy resolve annotations at runtime
-against module globals — stringified annotations on function-local classes cannot be resolved,
+against module globals - stringified annotations on function-local classes cannot be resolved,
 which produces a misleading "NameError: name 'S' is not defined" / "Could not interpret
 annotation Mapped[int]" that looks like a version problem but is a scoping problem.
 
@@ -43,7 +46,7 @@ def _versions():
 
 
 # ---------------------------------------------------------------- LangGraph
-# Module level — see the note in the docstring.
+# Module level - see the note in the docstring.
 class SmokeState(TypedDict, total=False):
     value: int
     route: str
@@ -211,7 +214,7 @@ def _whisper():
 def _providers():
     """The rubric requires OpenAI, Gemini AND Groq switchable by env var.
 
-    Constructing with a dummy key makes no network call — it only proves the package
+    Constructing with a dummy key makes no network call - it only proves the package
     imports cleanly and its constructor signature is what Milestone 4 expects. This is
     the check that catches a pydantic-version conflict between gradio and google-genai
     before it surfaces as an ImportError three milestones from now.

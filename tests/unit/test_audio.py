@@ -1,7 +1,5 @@
-"""Milestone 1 self-checks, written as tests.
-
-Every assertion here is lifted straight from the milestone document's Self-Check list.
-"""
+# callcenter-intelligence
+# tests/unit/test_audio.py
 
 from __future__ import annotations
 
@@ -40,7 +38,6 @@ class TestFormatDetection:
         assert detect_audio_format(b"RIFF") is None
 
     def test_extension_does_not_influence_detection(self):
-        """The whole point: an mp3 payload named .wav is still an mp3."""
         assert detect_audio_format(make_mp3_bytes()) == "mp3"
 
 
