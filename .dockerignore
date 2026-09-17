@@ -1,0 +1,21 @@
+# callcenter-intelligence
+# .dockerignore
+#
+# A COPY . . that includes .venv or a local SQLite file is how a "builds but
+# immediately crashes" image usually happens.
+
+.git
+.venv
+venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.cursor
+docs
+PROVENANCE.md
+data
+*.egg-info
+.DS_Store
+.env
