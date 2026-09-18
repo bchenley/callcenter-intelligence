@@ -19,7 +19,7 @@ Run:  python scripts/check_stack.py [-v]
 import io
 import sys
 import traceback
-from typing import List, TypedDict
+from typing import TypedDict
 
 RESULTS = []
 
@@ -29,7 +29,9 @@ def check(name):
         try:
             fn()
             RESULTS.append((name, True, ""))
-        except Exception as exc:
+        # A check that raises must be recorded as a failed check, not end the run.
+        # This harness exists to report every API that broke, not just the first.
+        except Exception as exc:  # noqa: BLE001
             RESULTS.append((name, False, f"{type(exc).__name__}: {exc}"))
             if "-v" in sys.argv:
                 traceback.print_exc()
@@ -50,7 +52,7 @@ def _versions():
 class SmokeState(TypedDict, total=False):
     value: int
     route: str
-    trace: List[str]
+    trace: list[str]
 
 
 @check("LangGraph: StateGraph + add_conditional_edges + compile + invoke")
@@ -167,8 +169,8 @@ def _pydantic():
 
 
 # ---------------------------------------------------------------- SQLAlchemy
-from sqlalchemy import String  # noqa: E402
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column  # noqa: E402
+from sqlalchemy import String
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class SmokeBase(DeclarativeBase):
@@ -235,8 +237,8 @@ def _providers():
 
 @check("with_structured_output is available on a chat model [rubric 20%]")
 def _structured_output():
-    from pydantic import BaseModel
     from langchain_openai import ChatOpenAI
+    from pydantic import BaseModel
 
     class Tiny(BaseModel):
         purpose: str
