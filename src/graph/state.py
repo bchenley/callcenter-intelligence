@@ -155,6 +155,10 @@ class PipelineState(TypedDict, total=False):
     report: CallReport
     error: str
     status: str
+    # Monotonic clock stamped by intake, read by the report node. Subtracting
+    # wall-clock timestamps would be wrong twice over: the report is built after
+    # the pipeline ends, and the system clock can step mid-run.
+    started_at: float
 
 
 DIMENSION_WEIGHTS: dict[str, float] = {

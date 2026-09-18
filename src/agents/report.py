@@ -106,6 +106,10 @@ def generate_report_pdf(report: CallReport) -> bytes:
     ]
     if report.filename:
         story.append(_para(f"File: {report.filename}", styles["Normal"]))
+    if report.processing_seconds is not None:
+        story.append(
+            _para(f"Processing time: {report.processing_seconds:.2f}s", styles["Normal"])
+        )
 
     story += [
         Spacer(1, 12),

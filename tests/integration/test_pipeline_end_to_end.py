@@ -76,6 +76,24 @@ def test_speakers_labelled(wired) -> None:
     assert {s.speaker for s in segments} == {"Agent", "Customer"}
 
 
+def test_report_records_its_own_processing_time(wired) -> None:
+    """processing_seconds and trace_id shipped as permanent nulls until the report
+    node was given the clock intake starts. The field existing is not the same as
+    the field being populated."""
+    compiled, *_ = wired
+    report = compiled.invoke({"audio_input": _audio()})["report"]
+    assert report.processing_seconds is not None
+    assert report.processing_seconds > 0.0
+
+
+def test_processing_time_survives_into_the_stored_json(wired, engine) -> None:
+    compiled, *_ = wired
+    report = compiled.invoke({"audio_input": _audio()})["report"]
+    with session_scope(engine) as session:
+        stored = session.scalars(select(CallRecord)).one()
+        assert f'"processing_seconds": {report.processing_seconds}' in stored.report_json
+
+
 def test_persists_a_call_record(wired, engine) -> None:
     compiled, *_ = wired
     result = compiled.invoke({"audio_input": _audio()})

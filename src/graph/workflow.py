@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from collections.abc import Callable
 from typing import Any
 
@@ -27,10 +28,14 @@ logger = logging.getLogger(__name__)
 
 try:
     from langsmith import traceable
+    from langsmith.run_helpers import get_current_run_tree
 except ImportError:  # pragma: no cover - langsmith is optional per the spec
 
     def traceable(func: Callable[..., Any]) -> Callable[..., Any]:
         return func
+
+    def get_current_run_tree() -> Any:
+        return None
 
 
 GENERIC_ERROR = "Processing failed for an unknown reason."
@@ -59,6 +64,20 @@ def isolate(name: str) -> Callable[[Callable[..., dict]], Callable[..., dict]]:
     return decorate
 
 
+def _current_trace_id() -> str | None:
+    """The LangSmith trace this run belongs to, so a report links back to its trace.
+
+    None when tracing is off or langsmith is absent. langsmith arrives transitively
+    through langchain-core rather than as a pinned dependency, so the attribute is
+    read defensively: a missing trace id is a dead link in the UI, not a reason to
+    fail a report that is otherwise complete."""
+    run = get_current_run_tree()
+    if run is None:
+        return None
+    trace_id = getattr(run, "trace_id", None)
+    return str(trace_id) if trace_id else None
+
+
 def _audit(audit: AuditLogger | None, call_id: str, action: str, **details: Any) -> None:
     if audit is None or not call_id:
         return
@@ -69,6 +88,7 @@ def make_intake_step(audit: AuditLogger | None = None) -> Callable[[PipelineStat
     @traceable
     @isolate("intake")
     def intake_step(state: PipelineState) -> dict:
+        started_at = time.monotonic()
         audio_input = state["audio_input"]
         result = run_intake(audio_input)
         _audit(
@@ -83,8 +103,9 @@ def make_intake_step(audit: AuditLogger | None = None) -> Callable[[PipelineStat
                 "intake": result,
                 "error": result.validation_error,
                 "status": CallStatus.FAILED.value,
+                "started_at": started_at,
             }
-        return {"intake": result, "status": "in_progress"}
+        return {"intake": result, "status": "in_progress", "started_at": started_at}
 
     return intake_step
 
@@ -209,12 +230,16 @@ def make_report_node(
     @traceable
     @isolate("report")
     def report_node(state: PipelineState) -> dict:
+        started_at = state.get("started_at")
+        elapsed = None if started_at is None else round(time.monotonic() - started_at, 3)
         report = compile_report(
             state["intake"],
             state["transcription"],
             state["summary"],
             state["qa_scores"],
             status=status,
+            trace_id=_current_trace_id(),
+            processing_seconds=elapsed,
         )
         persist_report(report, engine)
         # Supervisor review is not a successful close. Logging "completed" made the

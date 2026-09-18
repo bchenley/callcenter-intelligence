@@ -78,7 +78,7 @@ def _resolve_device() -> tuple[str, str]:
     return "cpu", "int8"
 
 
-def _get_whisper_model(model_size: str = "tiny") -> Any:
+def _get_whisper_model(model_size: str = "base") -> Any:
     global _model, _model_size
     if _model is not None and _model_size == model_size:
         return _model
@@ -192,7 +192,7 @@ def save_cache(engine: Engine, audio_hash: str, result: TranscriptionResult) -> 
 def run_transcription(
     intake: IntakeResult,
     engine: Engine,
-    model_size: str = "tiny",
+    model_size: str = "base",
     confidence_threshold: float = 0.6,
     low_confidence_halt_ratio: float = 0.5,
 ) -> TranscriptionResult:

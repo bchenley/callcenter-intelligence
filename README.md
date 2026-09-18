@@ -96,8 +96,8 @@ cp .env.example .env
 ```
 
 Edit `.env`. Set `LLM_PROVIDER` to `openai`, `gemini`, or `groq`, and the matching
-API key. Leave the other keys empty. `WHISPER_MODEL_SIZE=tiny` is the right
-default on a laptop.
+API key. Leave the other keys empty. `WHISPER_MODEL_SIZE=base` is the default
+on a laptop. Set `tiny` if you want a faster first load.
 
 ```bash
 pre-commit install   # also run by `make install`
@@ -135,8 +135,8 @@ make test-all          # everything
 CTranslate2 has no MPS backend. Setting the device to `mps` would fail at
 model load, so this code never does that.
 
-On a CUDA host set `WHISPER_MODEL_SIZE=large-v3` (or `small` / `base`). On CPU
-keep `tiny`. `large-v3` on CPU is tens of minutes per call.
+On a CUDA host set `WHISPER_MODEL_SIZE=large-v3` (or `small`). On CPU the
+default is `base`. `large-v3` on CPU is tens of minutes per call.
 
 The model is a process-wide singleton. `app.py` loads it at startup so the first
 request does not pay the 5-30s load.
@@ -152,11 +152,14 @@ docker run --rm -p 7860:7860 --env-file .env -e SPACE_ID=1 callcenter-intelligen
 variable is present, which makes `docker run -p` unreachable from the host.
 HuggingFace Spaces sets `SPACE_ID` itself.
 
+Docker `--env-file` does not strip inline comments. Keep comments on their own
+lines in `.env` (see `.env.example`).
+
 The image is `python:3.11-slim` plus `ffmpeg` (and `libsndfile1` for
 `soundfile`). Config is environment-only; do not bake a `.env` into the image.
 
 ## HuggingFace Spaces
 
 Create a Gradio Space. Add the provider API key as a secret. The root
-`requirements.txt` is installed automatically. Use `WHISPER_MODEL_SIZE=tiny` on
-the free CPU tier.
+`requirements.txt` is installed automatically. Use `WHISPER_MODEL_SIZE=base` on
+the free CPU tier (`tiny` if the Space is memory-constrained).
