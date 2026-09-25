@@ -1,0 +1,36 @@
+# callcenter-intelligence
+# .gitignore
+
+# Real keys stay out of git. .env.example is the committed template.
+.env
+.env.*
+!.env.example
+
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.DS_Store
+.vscode/
+.idea/
+.cursor/
+.cursorrules
+.cursorignore
+
+# Call audio and the SQLite file can contain PII; they are regenerable.
+data/*.db
+data/audio/*
+!data/audio/.gitkeep
+data/samples/
+
+# Model weights if a download ever lands in-tree.
+.cache/
+models/
+
+# Local working notes, not part of the project.
+PROVENANCE.md
+docs/
